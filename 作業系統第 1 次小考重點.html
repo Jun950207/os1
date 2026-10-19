@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>作業系統第 1 次小考重點</title>
+<style>
+:root{--bg:#f6f7f4;--surface:#fff;--ink:#1d2733;--muted:#5b6673;--line:#d9ddd6;--accent:#1f5e8c;--mark:#fff1a8;--warn:#a23a2a;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14181d;--surface:#1c222a;--ink:#e6e9ec;--muted:#98a3af;--line:#313a45;--accent:#7fb7e0;--mark:#5a4d12;--warn:#ef8d7d}}
+:root[data-theme="dark"]{--bg:#14181d;--surface:#1c222a;--ink:#e6e9ec;--muted:#98a3af;--line:#313a45;--accent:#7fb7e0;--mark:#5a4d12;--warn:#ef8d7d}
+html{scroll-padding-top:56px;scroll-behavior:smooth}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.75 "Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif}
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line);display:flex;gap:4px;overflow-x:auto;padding:8px 12px}
+nav a{white-space:nowrap;color:var(--ink);text-decoration:none;padding:4px 12px;border-radius:99px;font-size:14px}
+nav a:hover,nav a:focus-visible{background:var(--accent);color:var(--bg);outline:none}
+main{max-width:760px;margin:0 auto;padding:24px 16px 64px}
+h1{font-size:28px;line-height:1.3;margin:8px 0 4px}
+h2{font-size:21px;margin:44px 0 12px;padding-bottom:6px;border-bottom:2px solid var(--accent)}
+h3{font-size:17px;margin:20px 0 6px;color:var(--accent)}
+p{margin:6px 0}
+.sub{color:var(--muted);margin:0 0 16px}
+.scope{background:var(--surface);border-left:4px solid var(--accent);padding:10px 14px;border-radius:4px}
+mark{background:var(--mark);color:inherit;padding:0 2px;border-radius:2px}
+details{background:var(--surface);border:1px solid var(--line);border-radius:8px;margin:10px 0}
+summary{cursor:pointer;padding:12px 14px;font-weight:600;list-style:none;display:flex;justify-content:space-between;gap:8px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"＋";color:var(--accent)}
+details[open] summary::after{content:"－"}
+summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+summary small{font-weight:400;color:var(--muted)}
+.ans{padding:0 16px 14px;border-top:1px dashed var(--line)}
+ul,ol{margin:6px 0;padding-left:22px}
+li{margin:2px 0}
+.tw{overflow-x:auto;margin:10px 0}
+table{border-collapse:collapse;width:100%;min-width:520px;background:var(--surface);font-size:15px}
+th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{background:var(--bg)}
+pre{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:12px;overflow-x:auto;font:13.5px/1.55 ui-monospace,Menlo,Consolas,monospace;margin:8px 0}
+.note{color:var(--warn);font-size:15px}
+.btns{display:flex;gap:8px;margin:12px 0}
+button{font:inherit;font-size:14px;padding:6px 14px;border:1px solid var(--accent);background:transparent;color:var(--accent);border-radius:6px;cursor:pointer}
+button:hover{background:var(--accent);color:var(--bg)}
+svg text{fill:var(--ink);font-size:13px}
+svg .n{fill:var(--surface);stroke:var(--accent);stroke-width:1.5}
+svg .a{stroke:var(--accent);stroke-width:1.5;fill:none}
+svg .l{fill:var(--muted)}
+@media print{nav,.btns{display:none}details{break-inside:avoid}}
+</style>
+</head>
+<body>
+<nav>
+<a href="#s1">考古題解答</a><a href="#s2">可能會考</a><a href="#s3">讀書順序</a>
+</nav>
+<main>
+<h1>作業系統第 1 次小考重點</h1>
+<p class="sub">依考古題與 ch02~ch04 簡報整理</p>
+<p class="scope">範圍幾乎都在 <mark>ch02 系統結構、ch03 Process、ch04 Thread</mark>。ch05 排程演算法與 ch06 同步比較像下次的範圍,今晚可先放掉。</p>
+
+<h2 id="s1">一、考古題逐題解答</h2>
+<div class="btns"><button onclick="tg(true)">全部展開</button><button onclick="tg(false)">全部收合</button></div>
+<p class="sub">先自己默寫,再點開對答案。</p>
+
+<details><summary>1(a) Process 與 Thread 的差異 <small>5%</small></summary><div class="ans">
+<ul>
+<li>Process 是<mark>執行中的程式</mark>,擁有獨立的 address space 與資源。</li>
+<li>Thread 是 <mark>CPU 使用的基本單位</mark>,同一 process 內的 threads 共用 code、data、open files。</li>
+<li>每個 thread 各自有 thread ID、program counter、register set、stack。</li>
+<li>Thread 的建立與 context switch 成本遠低於 process(Solaris:建立約慢 30 倍,切換約慢 5 倍)。</li>
+</ul></div></details>
+
+<details><summary>1(b) IPC 的兩種基本模型 <small>5%</small></summary><div class="ans">
+<p><mark>Shared memory</mark>(共享記憶體)與 <mark>Message passing</mark>(訊息傳遞)。</p></div></details>
+
+<details><summary>1(c) 多執行緒程式設計的好處 <small>5%</small></summary><div class="ans">
+<ol>
+<li><b>Responsiveness</b>:部分 thread 被 block 或做長時間工作時,程式仍可回應使用者。</li>
+<li><b>Resource sharing</b>:thread 預設共用所屬 process 的記憶體與資源。</li>
+<li><b>Economy</b>:建立與切換成本低。</li>
+<li><b>Scalability</b>:可在多處理器上平行執行。</li>
+</ol></div></details>
+
+<details><summary>1(d) 什麼是 PCB <small>5%</small></summary><div class="ans">
+<p>Process Control Block:OS 為每個 process 記錄資訊的資料結構,context switch 時存取的就是它。內容:</p>
+<ul>
+<li>Process state</li><li>Program counter</li><li>CPU registers</li><li>CPU scheduling information</li><li>Memory-management information</li><li>Accounting information</li><li>I/O status information</li>
+</ul></div></details>
+
+<details><summary>1(e) 三種 multithreading model <small>5%</small></summary><div class="ans">
+<div class="tw"><table>
+<tr><th>模型</th><th>重點</th><th>例子</th></tr>
+<tr><td>Many-to-One</td><td>多個 user thread 對應一個 kernel thread</td><td>Solaris Green Threads</td></tr>
+<tr><td>One-to-One</td><td>每個 user thread 對應一個 kernel thread</td><td>Windows、Linux</td></tr>
+<tr><td>Many-to-Many</td><td>多個 user thread 對應多個 kernel thread</td><td>Solaris 9 之前</td></tr>
+</table></div>
+<p>另有 Two-level model:M:M 加上可把 user thread 綁定特定 kernel thread。</p></div></details>
+
+<details><summary>1(f) 多核心程式設計的挑戰 <small>5%</small></summary><div class="ans">
+<ul>
+<li><b>Dividing activities</b>:切分工作</li>
+<li><b>Balance</b>:平衡負載</li>
+<li><b>Data splitting</b>:資料切分</li>
+<li><b>Data dependency</b>:資料相依</li>
+<li><b>Testing and debugging</b>:測試與除錯</li>
+</ul></div></details>
+
+<details><summary>2. Process 狀態轉換圖 <small>10%</small></summary><div class="ans">
+<svg viewBox="0 0 640 250" width="100%" role="img" aria-label="Process 狀態轉換圖">
+<defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="var(--accent)"/></marker></defs>
+<ellipse class="n" cx="70" cy="40" rx="50" ry="22"/><text x="70" y="45" text-anchor="middle">new</text>
+<ellipse class="n" cx="570" cy="40" rx="60" ry="22"/><text x="570" y="45" text-anchor="middle">terminated</text>
+<ellipse class="n" cx="170" cy="130" rx="50" ry="22"/><text x="170" y="135" text-anchor="middle">ready</text>
+<ellipse class="n" cx="440" cy="130" rx="55" ry="22"/><text x="440" y="135" text-anchor="middle">running</text>
+<ellipse class="n" cx="305" cy="220" rx="55" ry="22"/><text x="305" y="225" text-anchor="middle">waiting</text>
+<path class="a" d="M100 56 Q150 75 160 106" marker-end="url(#ar)"/><text class="l" x="105" y="62">admitted</text>
+<path class="a" d="M392 116 Q305 90 215 118" marker-end="url(#ar)"/><text x="268" y="88">interrupt</text>
+<path class="a" d="M200 150 Q305 185 405 148" marker-end="url(#ar)"/><text x="250" y="178">scheduler dispatch</text>
+<path class="a" d="M460 108 Q520 70 535 58" marker-end="url(#ar)"/><text x="500" y="100">exit</text>
+<path class="a" d="M420 150 Q390 195 355 212" marker-end="url(#ar)"/><text x="400" y="215">I/O or event wait</text>
+<path class="a" d="M265 203 Q225 180 195 152" marker-end="url(#ar)"/><text x="60" y="200">I/O or event completion</text>
+</svg>
+<ul>
+<li>new → ready:<b>admitted</b></li>
+<li>ready → running:<b>scheduler dispatch</b></li>
+<li>running → ready:<b>interrupt</b></li>
+<li>running → waiting:<b>I/O or event wait</b></li>
+<li>waiting → ready:<b>I/O or event completion</b></li>
+<li>running → terminated:<b>exit</b></li>
+</ul>
+<p class="note">圖中 interrupt 的箭頭方向是 running → ready。你手寫的圖那條沒標 interrupt,考試要補上。</p></div></details>
+
+<details><summary>3. Long / Medium / Short-term scheduling 差異 <small>10%</small></summary><div class="ans">
+<div class="tw"><table>
+<tr><th></th><th>Long-term<br>(job scheduler)</th><th>Medium-term</th><th>Short-term<br>(CPU scheduler)</th></tr>
+<tr><td>功能</td><td>決定哪些 process 進入 ready queue</td><td>把 process 暫時換出記憶體(swap out),之後再換入</td><td>決定下一個執行的 process 並分配 CPU</td></tr>
+<tr><td>頻率</td><td>很少(秒、分鐘),可以慢</td><td>介於兩者之間</td><td>很頻繁(毫秒),必須快</td></tr>
+<tr><td>其他</td><td>控制 degree of multiprogramming,要搭配 I/O-bound 與 CPU-bound</td><td>用來降低 degree of multiprogramming</td><td></td></tr>
+</table></div>
+<ul>
+<li>I/O-bound:很多短的 CPU burst。</li>
+<li>CPU-bound:少數很長的 CPU burst。</li>
+</ul>
+<p class="note">Medium-term 在簡報裡只有圖,文字說明依課本補充。</p></div></details>
+
+<details><summary>4. Virtual machine 的主要優點 <small>10%</small></summary><div class="ans">
+<ul>
+<li><b>對 OS 設計者</b>:可在 VM 裡開發與測試系統,不會干擾正在運作的系統。</li>
+<li><b>對使用者</b>:同一台硬體可同時跑多個不同的 OS,彼此隔離保護;也能把多個低負載系統整合到較少的機器上。</li>
+</ul></div></details>
+
+<details><summary>5. 傳參數給 OS 的三種方法 <small>10%</small></summary><div class="ans">
+<ol>
+<li>放在 <b>registers</b>:最簡單,但參數可能比 register 多。</li>
+<li>放在記憶體的 <b>block / table</b>,再把位址放進 register(Linux、Solaris 採用)。</li>
+<li>程式把參數 <b>push 到 stack</b>,OS 再 pop 出來。</li>
+</ol>
+<p>後兩種不限制參數的數量與長度。</p></div></details>
+
+<details><summary>6. Kernel 做 context switch 的動作 <small>10%</small></summary><div class="ans">
+<ol>
+<li>把舊 process 目前的狀態(registers、program counter 等)<mark>存進它的 PCB</mark>。</li>
+<li>從新 process 的 PCB <mark>載入先前存的狀態</mark>。</li>
+<li>新 process 從上次中斷的地方繼續執行。</li>
+</ol>
+<p>切換期間系統不做有用的工作,是純 overhead,時間長短取決於硬體支援。</p></div></details>
+
+<details><summary>7. Producer-Consumer Problem <small>20%</small></summary><div class="ans">
+<h3>(a) 是什麼</h3>
+<p>Producer 產生資訊,Consumer 消耗資訊,兩者透過共用的 buffer 溝通。Buffer 分 unbounded(無大小限制)與 bounded(固定大小)。Buffer 滿時 producer 要等,空時 consumer 要等。</p>
+<h3>(b) Pseudocode(bounded buffer)</h3>
+<pre>#define BUFFER_SIZE 10
+item buffer[BUFFER_SIZE];
+int in = 0, out = 0;
+
+// Producer
+while (true) {
+    /* produce an item */
+    while (((in + 1) % BUFFER_SIZE) == out)
+        ;   /* buffer full, do nothing */
+    buffer[in] = item;
+    in = (in + 1) % BUFFER_SIZE;
+}
+
+// Consumer
+while (true) {
+    while (in == out)
+        ;   /* buffer empty, do nothing */
+    item = buffer[out];
+    out = (out + 1) % BUFFER_SIZE;
+    /* consume the item */
+}</pre>
+<p>此解法正確,但只能使用 BUFFER_SIZE−1 個格子。</p>
+<h3>(c) 屬於哪種 IPC</h3>
+<p><mark>Shared memory</mark>(簡報的解法即為 shared-memory solution)。</p></div></details>
+
+<h2 id="s2">二、這次沒考、但很可能出現</h2>
+
+<h3>ch03 Process</h3>
+<ul>
+<li>Process 在記憶體中包含:program counter、stack、data section(另有 text/code)。</li>
+<li>三種 queue:job queue、ready queue、device queues。</li>
+<li>建立:<code>fork()</code> 複製子 process,<code>exec()</code> 用新程式取代記憶體空間,parent 用 <code>wait()</code> 等 child。</li>
+<li>終止:exit、abort;parent 結束時 child 也被終止稱為 cascading termination。</li>
+<li>Cooperating processes 的原因:information sharing、computation speedup、modularity、convenience。</li>
+<li>Message passing:
+  <ul>
+  <li>Direct(指名對方)vs Indirect(透過 mailbox / port)</li>
+  <li>Blocking(同步)vs Non-blocking(非同步)</li>
+  <li>Buffering:zero capacity(rendezvous)、bounded、unbounded</li>
+  </ul></li>
+<li>Socket = IP + port;RPC 用 stub 與 marshalling。</li>
+</ul>
+
+<h3>ch02 系統結構</h3>
+<ul>
+<li>OS services:UI、program execution、I/O、file system、communication、error detection、resource allocation、accounting、protection and security。</li>
+<li>為什麼用 API 而不直接呼叫 system call:可攜性、比較簡單好用、隱藏細節(簡報有問但沒答,此為課本答案)。</li>
+<li>三大 API:Win32、POSIX、Java API;<code>printf()</code> 會呼叫 <code>write()</code> system call。</li>
+<li>System call 六類:process control、file management、device management、information maintenance、communications、protection。</li>
+<li><mark>Policy</mark>(做什麼)vs <mark>Mechanism</mark>(怎麼做),分離才有彈性。</li>
+<li>OS 結構:Simple(MS-DOS)、Layered、Microkernel、Modules。
+  <ul>
+  <li>Microkernel 優點:容易擴充、容易移植、更可靠、更安全。</li>
+  <li>Microkernel 缺點:user space 與 kernel space 溝通有效能 overhead。</li>
+  </ul></li>
+<li>Para-virtualization:guest 需修改才能執行。</li>
+<li>Bootstrap loader 存在 ROM / firmware,負責找到 kernel、載入並啟動。</li>
+</ul>
+
+<h3>ch04 Thread</h3>
+<ul>
+<li>User threads(由 library 管理,不需 kernel 支援)vs Kernel threads(由 OS 管理)。</li>
+<li>三個 library:Pthreads、Win32、Java。</li>
+<li>Threading issues:fork() / exec() 語意、thread cancellation、signal handling、thread pools、thread-specific data、scheduler activations。</li>
+<li>Thread cancellation:asynchronous(立即終止)vs deferred(目標 thread 定期檢查)。</li>
+<li>Thread pool 優點:用現成 thread 比新建快,且能限制 thread 總數。</li>
+<li>Linux 用 <code>clone()</code> 建立 thread,不區分 process 與 thread,統稱 task。</li>
+</ul>
+
+<h2 id="s3">三、今晚讀書順序</h2>
+<ol>
+<li>把第一節 7 題默寫一遍(約 1 小時),這是最確定會考的型態。</li>
+<li>看第二節 ch03、ch04,尤其是 IPC 與 multithreading models。</li>
+<li>掃過 ch02 的 microkernel、VM、system call。</li>
+<li>還有時間再看 ch05 的 FCFS、SJF、RR 計算題,但那應該是下次的範圍。</li>
+</ol>
+<p class="sub">若老師有說明小考範圍,以老師說的為準。</p>
+</main>
+<script>
+function tg(o){document.querySelectorAll("details").forEach(function(d){d.open=o})}
+</script>
+</body>
+</html>
